@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithCategoryConditionTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With Conditions"/>
+            <description value="Check Rule Auto Add Promo Items With Conditions"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="109611"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data and Configuration Options before Test -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultCategory" stepKey="createSecondCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createSecondCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configPromoMessagesProductWithZeroPrice"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditRuleAddActionsConditionsActionGroup" stepKey="addConditionsForCartRule">
+                <argument name="actionsConditionOptions" value="_category"/>
+                <argument name="ruleName" value="ruleAutoAddTheSameProductForOneQty.name"/>
+                <argument name="actionsConditionOptionsParamIs" value="_is"/>
+                <argument name="conditionsData" value="$$createSecondCategory.id$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data and Return Default Configuration Options after Test -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createSecondCategory" stepKey="deleteSecondCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="defaultMessagesPromoConfig"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!--Add Product to Cart and Assert Product On Cart-->
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertNotAddedFreeGiftToCart">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addSecondProductToCart">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertNotAddedFirstProduct">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertAddedGiftProduct">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

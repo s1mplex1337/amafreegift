@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="DisableSkipPromosForConfigProdWhenChildHasSpecialPriceTest"
+          extends="EnableSkipPromosForConfigProdWhenChildHasSpecialPriceTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add The Same Product with Disabled Do not Offer Promos for Configurable Products when Child has Special Price Setting"/>
+            <description value="Check Rule Auto Add The Same Product with Disabled Do not Offer Promos for Configurable Products when Child has Special Price Setting"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201473"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="setLimitationsPromoConfig"/>
+        </before>
+        <after>
+            <remove keyForRemoval="defLimitationsPromoConfig"/>
+        </after>
+
+        <remove keyForRemoval="assertNoFreeGiftAdded"/>
+        <remove keyForRemoval="addSecondProdToCart"/>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createFirstChildProdCreateProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

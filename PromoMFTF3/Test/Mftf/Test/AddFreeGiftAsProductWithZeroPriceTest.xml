@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftAsProductWithZeroPriceTest" extends="AddFreeGiftAsProductWithFullDiscountTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Product as a Free Gift with Zero Price"/>
+            <description value="Add Product as a Free Gift with Zero Price"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="146385"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configPromoMessagesMultipleMethodProductWithZeroPrice"/>
+            </actionGroup>
+        </before>
+
+        <remove keyForRemoval="openOrderAndCheckTotals"/>
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createSecondProduct.name$$)}}"
+             userInput="{{promoPrices.zeroPrice}}" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.fiftyFourPrice}}"/>
+            <argument name="total" value="{{promoPrices.fiftyFourPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckNoCartDiscountActionGroup" stepKey="checkDiscountAmount"/>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="{{promoPrices.zeroPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderAsCustomerOnCheckoutShippingPageActionGroup"
+                     stepKey="fillShippingCheckoutPage"/>
+        <actionGroup ref="StorefrontCheckNoDiscountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals"/>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.fiftyFourPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderSimpleLoginDiscount.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.fiftyNinePrice}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.fiftyFourPrice"/>
+            <argument name="grandTotal" value="promoPrices.fiftyNinePrice"/>
+        </actionGroup>
+    </test>
+</tests>

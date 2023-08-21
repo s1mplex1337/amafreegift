@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminAssertFreeGiftAddingGridNotClickableRowActionGroup">
+        <arguments>
+            <argument name="row" defaultValue="number.two"/>
+            <argument name="column" defaultValue="gridColumn"/>
+            <argument name="itemsLeft" defaultValue="number.one"/>
+        </arguments>
+        <click selector="{{AdminOrderInfoSection.ConfigureBtn}}" stepKey="clickConfigure"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <dontSeeElement selector="{{AdminOrderInfoSection.OkBtn}}" stepKey="assertNoConfigureWindow"/>
+        <dontSeeElement selector="{{AdminOrderInfoSection.FreeGiftSelect(row)}}" stepKey="assertDisabledCheckbox"/>
+        <dontSeeElement selector="{{AdminOrderInfoSection.TableCell(row, column.quantity)}}"
+                        stepKey="assertDisabledQtyField"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.id)}}" stepKey="clickIdCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeft"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.product)}}" stepKey="clickProductCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftSecondTime"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.sku)}}" stepKey="clickSkuCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftThirdTime"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.originalPrice)}}"
+               stepKey="clickOriginalPriceCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftFourthTime"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.promoPrice)}}" stepKey="clickPromoPriceCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftFifthTime"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.quantity)}}" stepKey="clickQuantityCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftSixthTime"/>
+        <click selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" stepKey="clickItemsLeftCell"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftSeventhTime"/>
+        <click selector="{{AdminOrderInfoSection.FreeGiftDisabledSelect(row)}}" stepKey="clickCheckbox"/>
+        <see selector="{{AdminOrderInfoSection.TableValue(row, column.itemsLeft)}}" userInput="{{itemsLeft}}"
+                    stepKey="assertItemsLeftEighthTime"/>
+    </actionGroup>
+</actionGroups>

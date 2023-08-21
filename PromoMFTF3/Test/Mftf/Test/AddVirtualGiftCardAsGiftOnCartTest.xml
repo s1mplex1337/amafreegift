@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddVirtualGiftCardAsGiftOnCartTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Gift Card as a Free Gift"/>
+            <description value="Add Gift Card as a Free Gift"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="146270"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data and Configuration Options before Test -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Create new gift card product -->
+            <actionGroup ref="GoToSpecifiedCreateProductPageActionGroup" stepKey="createGiftCardProduct">
+                <argument name="productType" value="giftcard"/>
+            </actionGroup>
+            <!-- Fill gift card product values -->
+            <actionGroup ref="AdminFillGiftCardProductFieldsActionGroup" stepKey="fillGiftCardProductFields">
+                <argument name="product" value="VirtualGiftCard"/>
+            </actionGroup>
+            <!-- Add amount to gift card product -->
+            <actionGroup ref="addGiftCardAmount" stepKey="addFirstAmountToGiftCard">
+                <argument name="giftCardAmount" value="GiftCard.amounts[0]"/>
+            </actionGroup>
+            <actionGroup ref="addGiftCardAmount" stepKey="addSecondAmountToGiftCard">
+                <argument name="giftCardAmount" value="GiftCard.amounts[1]"/>
+            </actionGroup>
+            <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+                <argument name="promoItems" value="VirtualGiftCard.sku"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data and Return Default Configuration Options after Test -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <actionGroup ref="AdminDeleteCreatedProductActionGroup" stepKey="deleteGiftCard">
+                <argument name="product" value="VirtualGiftCard"/>
+            </actionGroup>
+            <actionGroup ref="AdminClearProductGridActionGroup" stepKey="clearFilterAfterDeleteProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="defaultMessagesPromoConfig"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!--Add Product to Cart and Assert Product On Cart-->
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenPopUpInCartActionGroup" stepKey="openPopUpOnCart"/>
+        <actionGroup ref="StorefrontConfigureGiftCardWithAmountsActionGroup" stepKey="fillGiftCardForm">
+            <argument name="amount" value="GiftCard.amounts[1]"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddFreeGiftOneByOneInCartActionGroup" stepKey="addGiftToCart">
+            <argument name="product" value="VirtualGiftCard"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="VirtualGiftCard.name"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedSimpleProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedGiftProductToCart">
+            <argument name="product" value="VirtualGiftCard"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithQtyInStockConditionTest" extends="AutoAddPromoItemsWithCategoryConditionTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With Conditions"/>
+            <description value="Check Rule Auto Add Promo Items With Conditions"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="109610"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo_AdvancedConditions"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <remove keyForRemoval="createSecondCategory"/>
+            <createData entity="SimpleProductByBagImpulseDuffleQtyOne" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByJoustDuffleBag" after="createSecondProduct" stepKey="createThirdProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+                <argument name="promoItems" value="$$createThirdProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditRuleAddGlobalConditionsActionGroup" stepKey="addConditionsForCartRule">
+                <argument name="ruleName" value="defaultPromoCartRule.name"/>
+                <argument name="actionsConditionOptions" value="_qtyInStock"/>
+                <argument name="conditionsData" value="number.two"/>
+            </actionGroup>
+        </before>
+        <after>
+            <remove keyForRemoval="deleteSecondCategory"/>
+            <deleteData createDataKey="createThirdProduct" after="deleteSecondProduct" stepKey="deleteThirdProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <remove keyForRemoval="assertNotAddedFirstProduct"/>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotAddedFreeGiftToCart">
+            <argument name="product" value="$$createThirdProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="$$createThirdProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedGiftProduct">
+            <argument name="product" value="$$createThirdProduct$$"/>
+            <argument name="productQty" value="_enterQty2"/>
+        </actionGroup>
+    </test>
+</tests>

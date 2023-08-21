@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+
+    <entity name="promoPrices" type="promoData">
+        <data key="zeroPrice">0.00</data>
+        <data key="fiveNinetyPrice">5.90</data>
+        <data key="tenPrice">10.00</data>
+        <data key="elevenEightyPrice">11.80</data>
+        <data key="sixteenPrice">16.00</data>
+        <data key="seventeenPrice">17.00</data>
+        <data key="seventeenSixtyPrice">17.60</data>
+        <data key="twentyFourPrice">24.00</data>
+        <data key="thirtyTwoPrice">32.00</data>
+        <data key="thirtyFourPrice">34.00</data>
+        <data key="thirtyTwoTwentyPrice">32.20</data>
+        <data key="fortyPrice">40.00</data>
+        <data key="fortyFourPrice">44.00</data>
+        <data key="fortyEightPrice">48.00</data>
+        <data key="fiftyPrice">50.00</data>
+        <data key="fiftyTwoPrice">52.00</data>
+        <data key="fiftyFourPrice">54.00</data>
+        <data key="fiftyEightPrice">58.00</data>
+        <data key="fiftyNinePrice">59.00</data>
+        <data key="sixtyEightyPrice">60.80</data>
+        <data key="sixtyFourFortyPrice">64.40</data>
+        <data key="sixtySixPrice">66.00</data>
+        <data key="sixtyNinePrice">69.00</data>
+        <data key="seventyPrice">70.00</data>
+        <data key="seventyEightyPrice">70.80</data>
+        <data key="seventyFivePrice">75.00</data>
+        <data key="seventySixPrice">76.00</data>
+        <data key="seventySevenPrice">77.00</data>
+        <data key="eightyPrice">80.00</data>
+        <data key="eightySixPrice">86.00</data>
+        <data key="eightySevenPrice">87.00</data>
+        <data key="ninetyThreePrice">93.00</data>
+        <data key="oneHundredPrice">100.00</data>
+        <data key="oneHundredThreePrice">103.00</data>
+        <data key="oneHundredEightPrice">108.00</data>
+        <data key="oneHundredEighteenPrice">118.00</data>
+        <data key="oneHundredTwentyTwoPrice">122.00</data>
+        <data key="oneHundredTwentyNinePrice">129.00</data>
+        <data key="oneHundredThirtyFourPrice">139.00</data>
+        <data key="oneHundredFiftyPrice">150.00</data>
+        <data key="oneHundredSixtyPrice">160.00</data>
+        <data key="twoHundredPrice">200.00</data>
+        <data key="twoHundredFourPrice">204.00</data>
+    </entity>
+
+    <entity name="gridColumn" type="column">
+        <data key="itemsLeft">Items Left</data>
+        <data key="quantity">Quantity</data>
+        <data key="id">ID</data>
+        <data key="product">Product</data>
+        <data key="sku">SKU</data>
+        <data key="originalPrice">Original Price</data>
+        <data key="promoPrice">Promo Price</data>
+    </entity>
+
+    <entity name="availablePromosMsg" type="message">
+        <data key="text">You did not add any gift products to the cart.</data>
+        <data key="link">Check your available gifts!</data>
+    </entity>
+
+    <entity name="flatRateMethod" type="shippingPrice">
+        <data key="priceForOneItem">$5.00</data>
+        <data key="priceForTwoItems">$10.00</data>
+    </entity>
+
+</entities>

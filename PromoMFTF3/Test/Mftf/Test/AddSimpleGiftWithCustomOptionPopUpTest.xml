@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddSimpleGiftWithCustomOptionPopUpTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Simple Product with Custom Option as a Free Gift in Pop Up with Auto Add Promo Items with Products Rule"/>
+            <description value="Add Simple Product with Custom Option as a Free Gift in Pop Up with Auto Add Promo Items with Products Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201469"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <updateData createDataKey="createSecondProduct" entity="productWithOptions2"
+                        stepKey="updateProductWithCustomOption"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCartPriceRulePageActionGroup" stepKey="openCartPriceRulePage"/>
+            <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" stepKey="disableCartRulesIfExist">
+                <argument name="action" value="mainMassActions.disable"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="setMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertNoFreeGift">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenFreeGiftPopUpActionGroup" stepKey="openFreeGiftPopUp"/>
+        <actionGroup ref="StorefrontAddConfigurableGiftOneByOnePopUpActionGroup" stepKey="addFreeGift">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="configOption" value="ProductOptionValueDropdownLongTitle1.title"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGift">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.oneHundredThreePrice}}"/>
+            <argument name="total" value="{{promoPrices.fiftyNinePrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="assertDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.fortyFourPrice"/>
+        </actionGroup>
+    </test>
+</tests>

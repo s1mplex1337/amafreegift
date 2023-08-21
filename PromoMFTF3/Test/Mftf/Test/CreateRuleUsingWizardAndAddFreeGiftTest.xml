@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="CreateRuleUsingWizardAndAddFreeGiftTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Sales Rule Wizard"/>
+            <description value="Check Sales Rule Wizard"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="103123"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoWizard"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data and Configuration Options before Test -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createThirdProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="VirtualProduct" stepKey="createVirtualProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCartPriceRulePageActionGroup" stepKey="openCartPriceRulePage"/>
+            <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" stepKey="disableCartRulesIfExist">
+                <argument name="action" value="mainMassActions.disable"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configPromoMessagesProductWithZeroPrice"/>
+            </actionGroup>
+            <!-- Filling Wizard from First to Fourth Steps -->
+            <actionGroup ref="AdminWizardStepOneActionGroup" stepKey="fillWizardStepOne">
+                <argument name="promoCartRuleWizard" value="wizardAndBuy2ProductsGet1ProductFree"/>
+            </actionGroup>
+            <actionGroup ref="AdminWizardStepTwoWithPauseActionGroup" stepKey="fillWizardStepTwo">
+                <argument name="promoCartRuleWizard" value="wizardAndBuy2ProductsGet1ProductFree"/>
+            </actionGroup>
+            <actionGroup ref="AdminWizardAddProductActionGroup" stepKey="addFirstProduct">
+                <argument name="sku" value="$$createFirstProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminWizardAddProductActionGroup" stepKey="addSecondProduct">
+                <argument name="sku" value="$$createVirtualProduct.sku$$"/>
+            </actionGroup>
+            <click selector="{{AdminSalesRuleWizardSection.ButtonNext}}" stepKey="clickButtonNextStep"/>
+            <actionGroup ref="AdminWizardStepThreeActionGroup" stepKey="fillWizardStepThree">
+                <argument name="promoCartRuleWizard" value="wizardAndBuy2ProductsGet1ProductFree"/>
+            </actionGroup>
+            <actionGroup ref="AdminWizardStepFourActionGroup" stepKey="saveRule"/>
+        </before>
+        <after>
+            <!--Delete Created Data After Test -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <deleteData createDataKey="createVirtualProduct" stepKey="deleteVirtualProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCreatedCartPriceRule">
+                <argument name="ruleName" value="{{wizardAndBuy2ProductsGet1ProductFree.ruleAutoName}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfigurationDefault"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfigurationDefault"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotFirstFreeGiftInCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotSecondFreeGiftInCart">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addSecondProductToCart">
+            <argument name="product" value="$$createThirdProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenPopUpInCartActionGroup" stepKey="openPopUpOnCart"/>
+        <actionGroup ref="StorefrontAddFreeGiftOneByOneInCartActionGroup" stepKey="addGiftToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createFirstProduct.name$$)}}"
+             userInput="{{promoPrices.zeroPrice}}" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.sixtySixPrice}}"/>
+            <argument name="total" value="{{promoPrices.sixtySixPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckoutFillShippingAddressAsGuestActionGroup" stepKey="fillShippingCheckoutPage">
+            <argument name="customer" value="customerAddressArizona"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.sixtySixPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderCouponCodeWithConditions.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.seventySixPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderBillingAsShippingGuestActionGroup" stepKey="createOrder"/>
+        <actionGroup ref="AdminOpenOrderOnIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="{$grabOrderNumberCreateOrder}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.sixtySixPrice"/>
+            <argument name="grandTotal" value="promoPrices.seventySixPrice"/>
+        </actionGroup>
+    </test>
+</tests>

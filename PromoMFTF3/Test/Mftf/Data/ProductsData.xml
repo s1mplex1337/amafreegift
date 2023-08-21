@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+
+    <entity name="SimpleProductByStriveShoulderPackWithWeight" extends="SimpleProductByStriveShoulderPack"
+            type="product">
+        <data key="weight">2</data>
+    </entity>
+
+    <entity name="testWebsite" type="website">
+        <data key="name" unique="suffix">Second Website</data>
+        <data key="code">test</data>
+        <data key="sort_order">10</data>
+        <data key="store_action">add</data>
+        <data key="store_type">website</data>
+        <data key="website_id">null</data>
+    </entity>
+
+    <entity name="EavStock5" type="product_extension_attribute">
+        <requiredEntity type="stock_item">Qty_5</requiredEntity>
+    </entity>
+
+    <entity name="Qty_5" type="stock_item">
+        <data key="qty">5</data>
+        <data key="is_in_stock">true</data>
+    </entity>
+
+    <entity name="UpdateProductStockToFive" type="product">
+        <var key="sku" entityKey="sku" entityType="product"/>
+        <requiredEntity type="product_extension_attribute">EavStock5</requiredEntity>
+    </entity>
+
+</entities>

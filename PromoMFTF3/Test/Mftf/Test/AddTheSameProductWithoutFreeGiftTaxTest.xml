@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddTheSameProductWithoutFreeGiftTaxTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Add Same Product In The Cart Without Apply Tax On Original Price"/>
+            <description value="Check Rule Add Same Product In The Cart Without Apply Tax On Original Price"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="85188"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoFreeGifts"/>
+        </annotations>
+
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="CommonCustomerArizona" stepKey="createCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <createData entity="taxRateForArizona" stepKey="createTaxRate"/>
+            <actionGroup ref="AdminCreateTaxRuleActionGroup" stepKey="createTaxRule">
+                <argument name="taxRule" value="taxRuleWithArizona"/>
+                <argument name="taxRate" value="$$createTaxRate$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRuleFirst">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+                <argument name="promoItems" value="$$createFirstProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminDeleteTaxRule" stepKey="deleteTaxRule">
+                <argument name="taxRuleCode" value="{{taxRuleWithArizona.code}}"/>
+            </actionGroup>
+            <deleteData createDataKey="createTaxRate" stepKey="deleteTaxRate"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCustomer">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCartFirst">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertAddedGiftProduct">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontChooseShippingMethodActionGroup" stepKey="selectShipping"/>
+        <grabTextFrom selector="{{CheckoutCartSummarySection.shipping}}" stepKey="grabShippingCost"/>
+        <executeJS function="return ('{$grabShippingCost}'.slice(1))" stepKey="getShippingCost"/>
+        <executeJS function="return (($$createFirstProduct.price$$)*1.1)+({$getShippingCost})" stepKey="getOrderTotal"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummaryFirst">
+            <argument name="subtotal" value="{{promoPrices.oneHundredEightPrice}}"/>
+            <argument name="total" value="{$getOrderTotal}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.fiftyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderAsCustomerOnCheckoutShippingPageActionGroup"
+                     stepKey="fillShippingCheckoutPage"/>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.fiftyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.oneHundredEightPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{$getShippingCost}"/>
+            <argument name="orderSummaryTotal" value="{$getOrderTotal}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderGrabMainNumberActionGroup" stepKey="createOrder"/>
+        <actionGroup ref="AdminOpenOrderOnIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="{$grabOrderNumberCreateOrder}"/>
+        </actionGroup>
+        <see selector="{{AdminOrderTotalSection.subTotal}}" userInput="{{promoPrices.oneHundredEightPrice}}"
+             stepKey="checkSubtotal"/>
+        <see selector="{{AdminOrderTotalSection.grandTotal}}" userInput="{$getOrderTotal}" stepKey="checkGrandTotal"/>
+    </test>
+</tests>

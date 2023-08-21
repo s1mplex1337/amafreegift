@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="ApplyShippingOnPromoAddedForFreeEnableTest" extends="ApplyShippingOnPromoAddedForFreeDisableTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Enable Apply Shipping On Promo Items Added For Free"/>
+            <description value="Enable Apply Shipping On Promo Items Added For Free"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201468"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminEditRuleEnableShippingApplyActionGroup" after="createPromoCartPriceRule"
+                         stepKey="enableShippingApply">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+        </before>
+
+        <actionGroup ref="StorefrontCheckPriceShippingActionGroup" stepKey="assertShippingPrice">
+            <argument name="shippingPrices" value="flatRateMethod.priceForTwoItems"/>
+        </actionGroup>
+    </test>
+</tests>

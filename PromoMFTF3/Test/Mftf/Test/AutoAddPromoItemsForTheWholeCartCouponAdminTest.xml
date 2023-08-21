@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsForTheWholeCartCouponAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Simple Product as a Free Gift to Admin Order with Auto Add Promo Items for the Whole Cart Rule Using Coupon Code"/>
+            <description value="Add Simple Product as a Free Gift to Admin Order with Auto Add Promo Items for the Whole Cart Rule Using Coupon Code"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="178043"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartCoupon"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditCartPriceRuleAddCouponCodeActionGroup" stepKey="editCartRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartCoupon.name"/>
+                <argument name="couponCode" value="ruleAutoAddPromoItemsForTheWholeCartCoupon.code"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartCoupon.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addProductToOrder">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftsAreAvailableBtnActionGroup" stepKey="assertPromoBtn"/>
+        <actionGroup ref="AdminApplyCouponToOrderActionGroup" stepKey="applyCoupon">
+            <argument name="couponCode" value="{{ruleAutoAddPromoItemsForTheWholeCartCoupon.code}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertAddedFreeGiftMessageActionGroup" stepKey="assertSuccessMsg">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

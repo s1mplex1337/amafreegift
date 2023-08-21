@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsForTheWholeCartFixedPriceAdminTest" extends="AutoAddTheSameProdFixedDiscountAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items For The Whole Cart Fixed Price"/>
+            <description value="Check Rule Auto Add Promo Items For The Whole Cart Fixed Price"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="182709"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByJoustDuffleBag" after="createProduct" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartFixedPrice"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" stepKey="addDiscountSetting">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartFixedPrice.name"/>
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartFixedPrice"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartFixedPrice.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup" stepKey="assertFreeGiftDiscount">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+            <argument name="discount" value="promoPrices.twentyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdRowSubtotalActionGroup" stepKey="assertFreeGiftRowSubtotal">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+            <argument name="rowSubtotal" value="promoPrices.tenPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" stepKey="assertDiscount">
+            <argument name="discount" value="promoPrices.twentyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup"
+                     stepKey="assertFreeGiftDiscountSecondTime">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+            <argument name="discount" value="promoPrices.twentyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" stepKey="assertDiscountSecondTime">
+            <argument name="discount" value="promoPrices.twentyFourPrice"/>
+        </actionGroup>
+    </test>
+</tests>

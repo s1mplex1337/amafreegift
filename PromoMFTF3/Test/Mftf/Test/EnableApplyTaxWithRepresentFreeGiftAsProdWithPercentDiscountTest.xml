@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="EnableApplyTaxWithRepresentFreeGiftAsProdWithPercentDiscountTest"
+          extends="EnableInclTaxInSubtotalWithCatPricesExclTaxTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add the Same Product with Enabled Apply Tax on Original Price and Represent Free Gift as Product with One Hundred Percent Discount Settings"/>
+            <description value="Check Rule Auto Add the Same Product with Enabled Apply Tax on Original Price and Represent Free Gift as Product with One Hundred Percent Discount Settings"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201466"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <skip>
+                <issueId value="PDT-9670"/>
+            </skip>
+        </annotations>
+
+        <before>
+            <remove keyForRemoval="createSecondProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig"/>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRuleFirst">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+            <actionGroup ref="AdminChangeApplyTaxForGiftPromoCartRuleActionGroup" stepKey="enableApplyTaxForCartRule"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="setMessagePromoConfig"/>
+        </before>
+        <after>
+            <remove keyForRemoval="deleteSecondProduct"/>
+            <remove keyForRemoval="defGeneralPromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGift">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="assertDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.fiftyNinePrice"/>
+        </actionGroup>
+        <see selector="{{CheckoutCartSummarySection.taxAmount}}" userInput="{{promoPrices.fiveNinetyPrice}}"
+             stepKey="assertTaxAmount"/>
+    </test>
+</tests>

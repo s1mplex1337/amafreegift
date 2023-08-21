@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+
+    <section name="StorefrontCartSection">
+        <element name="PopUpForAddProduct" type="button" timeout="10" selector="//div[@class='columns']//a[@data-role='ampromo-popup-show']"/>
+        <element name="OpenPopUp" type="block" selector="//div[@data-role='ampromo-overlay']"/>
+        <element name="ClosePopUp" type="block" selector="//div[@class='ampromo-overlay'][@style='display: none;']"/>
+        <element name="PopUpProductsContainer" type="block" selector="//div[contains(@class,'ampromo-popup-container')]//div[@class='ampromo-carousel-product']"/>
+        <element name="MultiplePopUpAddButton" type="button" timeout="10" selector="//div[@data-role='ampromo-item-buttons']//button"/>
+        <element name="MultiplePopUpCheckbox" type="input" selector="//div[@class='slick-track']//input[@type='checkbox']"/>
+        <element name="OneByOnePopUpAddButton" type="button" selector="//div[@class='slick-track']/div//button"/>
+        <element name="PopUpCloseButton" type="button" timeout="10" selector="//div[@class='ampromo-items-content']/div[@class='ampromo-close']"/>
+        <element name="PromoDiscount" type="block" selector="//tr[@class='totals']/td[@data-th='Discount']/span"/>
+        <element name="PriceInPopUp" type="block" selector="//div[@class='slick-track']//div[@class='product-info-price']"/>
+        <element name="ProductInCartSameFree" type="block" parameterized="true" selector="//a[contains(string(),'{{productName}}')]/parent::*/following-sibling::div[@class='cart item message notice']"/>
+        <element name="OneByOneProductAdd" type="button" parameterized="true" timeout="10" selector="//div[@data-product-sku='{{productSKU}}']//button"/>
+        <element name="MultipleProductCheckbox" type="input" parameterized="true" selector="//div[@data-product-sku='{{productSKU}}']//input[@type='checkbox']"/>
+        <element name="MultipleProductQty" type="input" parameterized="true" selector="//div[@data-product-sku='{{productSKU}}']//div[@class='ampromo-item-qty-input']/input"/>
+        <element name="OldPriceOnPopUp" type="block" parameterized="true" selector="//div[@class='slick-track']/div[@data-product-sku='{{productSku}}']//span[@data-price-type='basePrice']/span"/>
+        <element name="NewPriceOnPopUp" type="block" parameterized="true" selector="//div[@class='slick-track']/div[@data-product-sku='{{productSKU}}']//span[@data-price-type='newPrice']/span"/>
+        <element name="ConfigurableProductOption" type="select" parameterized="true" selector="//div[@data-product-sku='{{productSKU}}']//parent::label/following-sibling::div/select"/>
+        <element name="ProductCurrentPriceInPopUp" type="block" parameterized="true"
+                 selector="//a[@title='{{name}}']/../../..//span[@data-price-type='newPrice']/span[@class='price']"/>
+        <element name="GiftCardAmount" type="select" selector="//select[@name='giftcard_amount']"/>
+        <element name="FreeProductPriceByName" type="text" parameterized="true"
+                 selector="//main//table[@id='shopping-cart-table']//tbody//tr[..//strong[contains(@class, 'product-item-name')]//a/text()='FREE -  {{var1}}'][1]//td[contains(@class, 'price')]//span[@class='price']"/>
+        <element name="UpdateProductButtonByName" type="button" parameterized="true" timeout="30"
+                 selector="//*[contains(text(), '{{name}}')]/ancestor::tbody//a[@class='action action-edit']"/>
+        <element name="FreeProductByName" type="text" parameterized="true"
+                 selector="//table[@id='shopping-cart-table']//strong[@class='product-item-name']/a[contains(string(), '{{name}}')]/../../div[contains(string(), 'FREE!')]"/>
+        <element name="PopUpItemsLeft" type="text" parameterized="true"
+                 selector="//h2[@class='ampromo-popup-title' and contains(string(), 'Free Items') and contains(string(), 'left)')]/span[@class='ampromo-counter' and text()='{{itemsLeft}}']"/>
+        <element name="PopUpProdItemsLeft" type="text" parameterized="true"
+                 selector="//div[@data-product-sku='{{sku}}']//span[@class='ampromo-item-qty-left'][contains(string(), 'left')]/span[text() = '{{itemsLeft}}']"/>
+        <element name="PopUpProdItem" type="block"
+                 selector="//div[contains(@class, 'ampromo-item slick-slide') and not(contains(@class, '-selected'))]"/>
+        <element name="PopUpProdItemSelected" type="block" parameterized="true"
+                 selector="//div[contains(@class, 'ampromo-item slick-slide') and contains(@class, '-selected') and @data-product-sku='{{sku}}']"/>
+    </section>
+</sections>

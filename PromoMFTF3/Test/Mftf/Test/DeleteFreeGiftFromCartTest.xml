@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="DeleteFreeGiftFromCartTest" extends="DeleteParentProductForFreeGiftFromCartTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Delete Free Gift Product From Cart"/>
+            <description value="Delete Free Gift Product From Cart"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="149612"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoFreeGifts"/>
+        </annotations>
+
+        <remove keyForRemoval="assertCartIsEmpty"/>
+        <actionGroup ref="StorefrontDeleteProductFromTheCartActionGroup" stepKey="deleteFirstProductFromCart">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertDeletedFreeGiftFromCart">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenPopUpInCartActionGroup" stepKey="assertPopUpOnCart"/>
+    </test>
+</tests>

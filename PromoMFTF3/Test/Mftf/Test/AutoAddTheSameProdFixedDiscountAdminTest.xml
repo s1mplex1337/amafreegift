@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddTheSameProdFixedDiscountAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add The Same Product With Fixed Discount"/>
+            <description value="Check Rule Auto Add The Same Product With Fixed Discount"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="182708"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductFixedDiscount"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" stepKey="addDiscountSetting">
+                <argument name="cartRuleName" value="ruleAutoAddTheSameProductFixedDiscount.name"/>
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductFixedDiscount"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defGeneralPromoConfiguration"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductFixedDiscount.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrder">
+            <argument name="productSKU" value="$$createProduct.sku$$"/>
+            <argument name="productNumber" value="{{number.zero}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup" stepKey="assertFreeGiftDiscount">
+            <argument name="product" value="$$createProduct.name$$"/>
+            <argument name="discount" value="promoPrices.tenPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdRowSubtotalActionGroup" stepKey="assertFreeGiftRowSubtotal">
+            <argument name="product" value="$$createProduct.name$$"/>
+            <argument name="rowSubtotal" value="promoPrices.twentyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" stepKey="assertDiscount">
+            <argument name="discount" value="promoPrices.tenPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminSelectFixedShippingMethodActionGroup" stepKey="selectShipping"/>
+        <actionGroup ref="AdminSubmitOrderActionGroup" stepKey="submitOrder"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup"
+                     stepKey="assertFreeGiftDiscountSecondTime">
+            <argument name="product" value="$$createProduct.name$$"/>
+            <argument name="discount" value="promoPrices.tenPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" stepKey="assertDiscountSecondTime">
+            <argument name="discount" value="promoPrices.tenPrice"/>
+        </actionGroup>
+    </test>
+</tests>

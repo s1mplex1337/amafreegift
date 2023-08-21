@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsOneOfTheSkusBelowAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With One Of The SKUs Below Type"/>
+            <description value="Check Rule Auto Add Promo Items With One Of The SKUs Below Type"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="178039"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminCreateConfigurableProductWithCategoryActionGroup"
+                         stepKey="createConfigurableProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartOneOfTheSKUsBelow"/>
+                <argument name="promoItems" value="$$createConfigProductCreateConfigurableProduct.sku$$, $$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createConfigProductCreateConfigurableProduct" stepKey="deleteConfigProduct"/>
+            <deleteData createDataKey="createFirstChildProdCreateConfigurableProduct"
+                        stepKey="deleteFirstChildProduct"/>
+            <deleteData createDataKey="createSecondChildProdCreateConfigurableProduct"
+                        stepKey="deleteSecondChildProduct"/>
+            <deleteData createDataKey="createConfigProdAttrCreateConfigurableProduct" stepKey="deleteProductAttribute"/>
+            <deleteData createDataKey="createCategoryCreateConfigurableProduct" stepKey="deleteCategoryConfigurable"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartOneOfTheSKUsBelow.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrderBySku">
+            <argument name="productSKU" value="$$createFirstProduct.sku$$"/>
+            <argument name="productNumber" value="{{number.zero}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoSecondFreeGiftAdded">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminOpenFreeGiftAddingGridActionGroup" stepKey="openFreeGiftProdGrid"/>
+        <checkOption selector="{{AdminOrderInfoSection.FreeGiftSelect(number.one)}}" stepKey="selectFreeGift"/>
+        <actionGroup ref="AdminAssertFreeGiftAddingGridNotClickableRowActionGroup" stepKey="assertSecondGiftLocked"/>
+        <actionGroup ref="AdminClickAddFreeGiftBtnActionGroup" stepKey="addFreeGift"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAddedSecondTime">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftsAreAvailableBtnActionGroup" stepKey="assertPromoBtn"/>
+    </test>
+</tests>

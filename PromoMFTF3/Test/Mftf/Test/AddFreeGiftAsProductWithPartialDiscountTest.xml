@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftAsProductWithPartialDiscountTest" extends="AddFreeGiftAsProductWithFullDiscountTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Bundle Product as a Free Gift with Partial Discount"/>
+            <description value="Add Bundle Product as a Free Gift with Partial Discount"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="85232"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <remove keyForRemoval="createSecondProduct"/>
+            <!--Create simple product 1-->
+            <createData entity="ApiProductWithDescription" stepKey="createSimpleProduct">
+                <field key="price">50.00</field>
+            </createData>
+            <!--Create simple product 2-->
+            <createData entity="ApiProductWithDescription" stepKey="createSimpleProductTwo">
+                <field key="price">50.00</field>
+            </createData>
+            <!--Create bundle product with checkbox bundle option-->
+            <createData entity="ApiBundleProduct" stepKey="createBundleProduct"/>
+            <createData entity="CheckboxOption" stepKey="checkboxBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <!--Link simple product 1 to bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="checkboxBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct"/>
+                <field key="is_default">1</field>
+            </createData>
+            <!--Link simple product 2 to bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="checkboxBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProductTwo"/>
+                <field key="is_default">1</field>
+            </createData>
+            <!--Add drop-down bundle option-->
+            <createData entity="DropDownBundleOption" stepKey="dropDownBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <!--Link simple product 1 to drop-down bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink3">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="dropDownBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct"/>
+                <field key="is_default">1</field>
+            </createData>
+            <!--Link simple product 2 to drop-down bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink4">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="dropDownBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProductTwo"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" after="createBundleLink4" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCartPriceRulePageActionGroup" after="loginAsAdmin"
+                         stepKey="openCartPriceRulePage"/>
+            <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" after="openCartPriceRulePage"
+                         stepKey="disableCartRulesIfExist">
+                <argument name="action" value="mainMassActions.disable"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" after="disableCartRulesIfExist"
+                         stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" after="settingGeneralPromoConfiguration"
+                         stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup"
+                         after="settingMessagePromoConfiguration" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartConditions"/>
+                <argument name="promoItems" value="$$createBundleProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" after="createPromoCartRule"
+                         stepKey="addDiscountSettingInRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartConditions.name"/>
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+            </actionGroup>
+        </before>
+        <after>
+            <remove keyForRemoval="deleteSecondProduct"/>
+            <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProductOne"/>
+            <deleteData createDataKey="createSimpleProductTwo" stepKey="deleteSimpleProductTwo"/>
+        </after>
+
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createBundleProduct.name$$)}}"
+             userInput="{{promoPrices.oneHundredFiftyPrice}}" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.twoHundredFourPrice}}"/>
+            <argument name="total" value="{{promoPrices.oneHundredTwentyNinePrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.seventyFivePrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="$$createBundleProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="{{promoPrices.oneHundredFiftyPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.seventyFivePrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.twoHundredFourPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderCouponCodeWithConditions.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.oneHundredThirtyFourPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.twoHundredFourPrice"/>
+            <argument name="grandTotal" value="promoPrices.oneHundredThirtyFourPrice"/>
+        </actionGroup>
+    </test>
+</tests>

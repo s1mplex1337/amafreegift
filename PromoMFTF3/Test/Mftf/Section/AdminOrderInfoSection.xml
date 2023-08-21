@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+
+    <section name="AdminOrderInfoSection">
+        <element name="ProductInOrderSku" type="block"
+                 selector="//td[@class='col-product']//div[@class='product-sku-block']"/>
+        <element name="NoPromoAvailableBtn" type="button" selector="//div[@id='order-billing_method']//button[@id='promo-select-button'][contains(string(), 'No free gift(s) are available')]"/>
+        <element name="ProdInOrderDiscount" type="text" parameterized="true"
+                 selector="//td[@class='col-product']/*[contains(string(), 'FREE -  {{name}}')]//ancestor::tbody//td[contains(@class, 'col-disco')]/span[contains(string(), '{{discount}}')]"/>
+        <element name="OrderDiscount" type="text" parameterized="true"
+                 selector="//td[contains(string(), 'Discount')]/parent::tr//span[@class='price' and contains(string(), '{{discount}}')]"/>
+        <element name="FreeGiftAddedMsg" type="text" parameterized="true"
+                 selector="//div[@data-ui-id='message-message-success' and contains(string(), 'Free gift') and contains(string(), '{{product}}') and contains(string(), 'was added to your shopping cart')]"/>
+        <element name="ProdInOrder" type="text" parameterized="true"
+                 selector="//td[@class='col-product']/*[contains(string(), 'FREE -  {{name}}')]"/>
+        <element name="PromoAvailableBtn" type="button" parameterized="true" selector="//div[@id='order-billing_method']//button[@id='promo-select-button'][contains(string(), 'Free gift(s) are available. Added {{availableQty}} out of {{totalQty}} items')]"/>
+        <element name="AddFreeGiftBtn" type="button" selector="//span[contains(string(), 'Add Selected Free Gift(s) to Order')]/parent::button[@class='action-primary']"/>
+        <element name="ConfigureBtn" type="button" selector="div.ampromo-action"/>
+        <element name="OkBtn" type="button" selector="//aside[contains(@class, 'amasty_promo')]/descendant::span[contains(string(), 'OK')]/parent::button"/>
+        <element name="AttrSelect" type="select" selector="//select[contains(@name, 'super_attribute')]"/>
+        <element name="TableValue" type="text" parameterized="true"
+                 selector=".//tr[@class][{{row}}]//td[@class='ampromo-gift-cell'][count(//table[@data-role='grid']//span[text()='{{column}}']/parent::th//preceding-sibling::th[@data-bind])]"/>
+        <element name="FreeItemsQtyLeft" type="text" parameterized="true"
+                 selector="//span[contains(@class, 'ampromo-gifts-counter')][contains(string(), 'Free Items')]/strong[contains(string(), '{{qty}} Left')]"/>
+        <element name="TableCell" type="input" parameterized="true"
+                 selector=".//tr[@class][{{row}}]//td[@class='ampromo-gift-cell'][count(//table[@data-role='grid']//span[text()='{{column}}']/parent::th//preceding-sibling::th[@data-bind])]/input[not(contains(@disabled, 'true'))]"/>
+        <element name="ProdInOrderQty" type="text" parameterized="true"
+                 selector="//td[@class='col-product']/*[contains(string(), 'FREE -  {{name}}')]//ancestor::tbody//td[contains(@class, 'col-qty')]/input[@value='{{itemQty}}']"/>
+        <element name="OptionCheckbox" type="checkbox" parameterized="true"
+                 selector="//span[@class='product-name' and contains(string(), '{{name}}')]//ancestor::label"/>
+        <element name="OptionInput" type="input" parameterized="true"
+                 selector="//label[contains(string(), '{{option}}')]/following::input[contains(@class, 'product-custom-option')]"/>
+        <element name="ProdInOrderOption" type="text" parameterized="true"
+                 selector="//td[@class='col-product']/div[contains(string(), 'FREE -  {{name}}')]//following::dl[@class='item-options' and contains(string(), '{{option}}')]"/>
+        <element name="ProdInOrderSku" type="text" parameterized="true"
+                 selector="//td[@class='col-product']//*[contains(string(), 'FREE -  {{name}}')]//following::div[@class='product-sku-block' and contains(string(), '{{sku}}')]"/>
+        <element name="ProdInOrderRowSubtotal" type="text" parameterized="true"
+                 selector="//td[@class='col-product']/*[contains(string(), 'FREE -  {{name}}')]//ancestor::tbody//td[contains(@class, 'col-row-subtotal')]/span[contains(string(), '{{rowSubtotal}}')]"/>
+        <element name="FreeGiftSelect" type="checkbox" parameterized="true"
+                 selector=".//tr[@class][{{row}}]//td[contains(@class, 'ampromo-gift-cell')][count(//table[@data-role='grid'])]//input[contains(@type, 'checkbox') and not(contains(@disabled, 'disabled'))]"/>
+        <element name="FreeGiftDisabledSelect" type="checkbox" parameterized="true"
+                 selector=".//tr[@class][{{row}}]//td[contains(@class, 'ampromo-gift-cell')][count(//table[@data-role='grid'])]//input[contains(@type, 'checkbox') and contains(@disabled, 'disabled')]/parent::label"/>
+    </section>
+</sections>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithCityConditionAdminTest" extends="AutoAddPromoItemsWithPostcodeConditionAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With City Conditions"/>
+            <description value="Check Rule Auto Add Promo Items With City Conditions"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="179075"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer_Without_Default_Address" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByJoustDuffleBag" after="createProduct" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditRuleAddGlobalConditionsActionGroup" stepKey="addConditionsForCartRule">
+                <argument name="ruleName" value="defaultPromoCartRule.name"/>
+                <argument name="actionsConditionOptionsParamIs" value="_is"/>
+                <argument name="actionsConditionOptions" value="_city"/>
+                <argument name="conditionsData" value="US_Address_NY.city"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminOrderOpenShippingMethodActionGroup" stepKey="clickGetShippingMethodsAndRates"/>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" after="clickGetShippingMethodsAndRates"
+                     stepKey="assertNoFreeGiftAddedSecondTime">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="FillOrderCustomerInformationActionGroup" after="assertNoFreeGiftAddedSecondTime"
+                     stepKey="fillCustomerInfoSecondTime">
+            <argument name="customer" value="$createCustomer$"/>
+            <argument name="address" value="US_Address_NY"/>
+        </actionGroup>
+        <actionGroup ref="AdminOrderOpenShippingMethodActionGroup" after="fillCustomerInfoSecondTime"
+                     stepKey="clickGetShippingMethods"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

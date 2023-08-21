@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddTheSameProductAndCancelCouponTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Auto add the same product with coupon"/>
+            <description value="Check Auto add the same product with coupon"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="149545"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoFreeGifts"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data Before Test -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByBagImpulseDuffle" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductCoupon"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditCartPriceRuleAddCouponCodeActionGroup" stepKey="editCartRule">
+                <argument name="cartRuleName" value="ruleAutoAddTheSameProductCoupon.name"/>
+                <argument name="couponCode" value="ruleAutoAddTheSameProductCoupon.code"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data After Test -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductCoupon.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Add First Product to Cart and Assert Gift on Cart-->
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCartFirst">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertNotAddedFreeGiftToCart">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Apply Coupon Code and Assert Gift on Cart-->
+        <actionGroup ref="StorefrontOpenCartAndApplyCouponActionGroup" stepKey="addCoupon">
+            <argument name="coupon" value="ruleAutoAddTheSameProductCoupon"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertAddedFirstProduct">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCancelCouponActionGroup" stepKey="clickCancelCoupon"/>
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertDeletedFreeGift">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

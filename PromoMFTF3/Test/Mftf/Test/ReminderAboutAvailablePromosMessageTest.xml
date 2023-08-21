@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="ReminderAboutAvailablePromosMessageTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Assert Reminder About Available Promos Message with Auto Add the Same Product Rule"/>
+            <description value="Assert Reminder About Available Promos Message with Auto Add the Same Product Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201470"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configReminderAboutAvailablePromos"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="defMessagePromoConfiguration"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAvailablePromosMessageActionGroup" stepKey="assertAvailablePromosMsg"/>
+        <actionGroup ref="StorefrontOpenPopUpUsingAvailableMsgLinkActionGroup" stepKey="openFreeGiftPopUp"/>
+        <dontSeeElement selector="{{StorefrontCartSection.FreeProductByName($$createProduct.name$$)}}"
+                        stepKey="assertNoFreeGiftAdded"/>
+        <actionGroup ref="StorefrontAddFreeGiftOneByOneInCartActionGroup" stepKey="addGiftToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNoAvailablePromosMessageActionGroup"
+                     stepKey="assertNoAvailablePromosMsg"/>
+        <actionGroup ref="StorefrontCheckoutFillShippingAddressAsGuestActionGroup" stepKey="fillShipping">
+            <argument name="customer" value="customerAddressArizona"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderBillingAsShippingGuestActionGroup" stepKey="createOrder"/>
+        <actionGroup ref="StorefrontAssertNoAvailablePromosMessageActionGroup"
+                     stepKey="assertNoAvailablePromosMsgSecondTime"/>
+    </test>
+</tests>

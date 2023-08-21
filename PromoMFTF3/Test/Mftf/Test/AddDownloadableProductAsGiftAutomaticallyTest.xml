@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddDownloadableProductAsGiftAutomaticallyTest" extends="AddVirtualProductAsGiftAutomaticallyTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Downloadable Product as a Free Gift"/>
+            <description value="Add Downloadable Product as a Free Gift"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="146267"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <remove keyForRemoval="createVirtualProduct"/>
+            <magentoCLI command="downloadable:domains:add example.com static.magento.com"
+                        stepKey="addDownloadableDomain"/>
+            <createData entity="DownloadableProductWithOneLink" stepKey="createDownloadableProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="downloadableLink1" stepKey="addDownloadableLink">
+                <requiredEntity createDataKey="createDownloadableProduct"/>
+            </createData>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" after="addDownloadableLink"
+                         stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+                <argument name="promoItems" value="$$createDownloadableProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <magentoCLI command="downloadable:domains:remove example.com static.magento.com"
+                        stepKey="removeDownloadableDomain"/>
+            <remove keyForRemoval="deleteVirtualProduct"/>
+            <deleteData createDataKey="createDownloadableProduct" stepKey="deleteDownloadableProduct"/>
+        </after>
+
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="$$createDownloadableProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedGiftProductToCart">
+            <argument name="product" value="$$createDownloadableProduct$$"/>
+        </actionGroup>
+    </test>
+</tests>

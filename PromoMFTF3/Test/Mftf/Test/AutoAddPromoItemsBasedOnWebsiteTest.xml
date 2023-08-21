@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsBasedOnWebsiteTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With Website Condition"/>
+            <description value="Check Rule Auto Add Promo Items With Website Condition"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="109704"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="logInAsAdmin"/>
+            <actionGroup ref="AdminCreateWebsiteActionGroup" stepKey="createWebsite">
+                <argument name="newWebsiteName" value="{{testWebsite.name}}"/>
+                <argument name="websiteCode" value="{{testWebsite.code}}"/>
+            </actionGroup>
+            <actionGroup ref="CreateCustomStoreActionGroup" stepKey="createCustomStoreGroup">
+                <argument name="website" value="{{testWebsite.name}}"/>
+                <argument name="store" value="{{customStoreGroup.name}}"/>
+                <argument name="rootCategory" value="Default Category"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createCustomStoreView">
+                <argument name="StoreGroup" value="customStoreGroup"/>
+                <argument name="customStore" value="customStore"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigBaseUrlActionGroup" stepKey="switchToNewSiteAndSetConfig">
+                <argument name="storeViewName" value="{{testWebsite.name}}"/>
+                <argument name="siteCode" value="testWebsite.code"/>
+            </actionGroup>
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToProductEditPage">
+                <argument name="productId" value="$$createFirstProduct.id$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAssignProductInWebsiteActionGroup" stepKey="selectProductInWebsites">
+                <argument name="website" value="{{testWebsite.name}}"/>
+            </actionGroup>
+            <actionGroup ref="SaveProductFormActionGroup" stepKey="clickSaveButton"/>
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToSecondProductEditPage">
+                <argument name="productId" value="$$createSecondProduct.id$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAssignProductInWebsiteActionGroup" stepKey="selectProductInWebsitesSecond">
+                <argument name="website" value="{{testWebsite.name}}"/>
+            </actionGroup>
+            <actionGroup ref="SaveProductFormActionGroup" stepKey="clickSaveButtonSecond"/>
+            <magentoCLI command="indexer:reindex" arguments="inventory" stepKey="reindex"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleBasedOnCustomWebsite"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data and Return Default Configuration Options after Test -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <amOnUrl url="{{_ENV.MAGENTO_BASE_URL}}" stepKey="goBackToMagento"/>
+            <actionGroup ref="AdminDeleteWebsiteActionGroup" stepKey="deleteWebsite">
+                <argument name="websiteName" value="{{testWebsite.name}}"/>
+            </actionGroup>
+            <magentoCLI command="indexer:reindex" arguments="inventory" stepKey="reindexAfterDeleteWebsite"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleBasedOnCustomWebsite.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="defaultMessagesPromoConfig"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <grabCookie userInput="setBaseUrl" stepKey="grabBaseUrl"/>
+        <!--Add Product to Cart and Assert Product On Cart-->
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotAddedFreeGiftToCart">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <amOnUrl url="{$grabBaseUrl}" stepKey="goToSecondWebsite"/>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCartSecondWebsite">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedFreeGiftToCartSecondWebsite">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+
+    <section name="AdminFreeGiftReportsSection">
+        <element name="TotalSales" type="text" parameterized="true"
+                 selector="//td[@data-ampromo-js='total_sales_with_promo' and contains(string(), '{{totalSales}}')]"/>
+        <element name="Orders" type="text" parameterized="true"
+                 selector="//td[@data-ampromo-js='orders_count_with_promo' and contains(string(), '{{orders}}')]"/>
+        <element name="AverageCartTotal" type="text" parameterized="true"
+                 selector="//td[@data-ampromo-js='average_total_with_promo' and contains(string(), '{{averageTotal}}')]"/>
+        <element name="PromoItemsPerOrder" type="text" parameterized="true"
+                 selector="//td[@data-ampromo-js='items_per_order' and contains(string(), '{{itemsPerOrder}}')]"/>
+        <element name="StoreView" type="select" selector="//select[@id='promo_reports_store']"/>
+        <element name="CustomerGroup" type="select" selector="//select[@id='promo_reports_customer_group']"/>
+        <element name="DateRange" type="select" selector="//select[@id='promo_reports_date_range']"/>
+        <element name="Refresh" type="button" selector="#promo_reports_submit"/>
+    </section>
+</sections>

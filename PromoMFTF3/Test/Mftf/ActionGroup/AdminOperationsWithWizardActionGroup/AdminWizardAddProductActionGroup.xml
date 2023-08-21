@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminWizardAddProductActionGroup">
+        <arguments>
+            <argument name="sku"/>
+        </arguments>
+        <click selector="{{AdminSalesRuleWizardSection.AddProducts}}" stepKey="addProducts"/>
+        <conditionalClick selector="{{AdminProductGridFilterSection.clearFilters}}"
+                          dependentSelector="{{AdminProductGridFilterSection.clearFilters}}" visible="true"
+                          stepKey="clickClearFilters"/>
+        <waitForPageLoad stepKey="waitForFiltersCleared"/>
+        <click selector="{{AdminProductGridFilterSection.filters}}" stepKey="openProductFilters"/>
+        <fillField selector="{{AdminProductGridFilterSection.skuFilter}}" userInput="{{sku}}"
+                   stepKey="fillProductSkuFilter"/>
+        <click selector="{{AdminProductGridFilterSection.applyFilters}}" stepKey="clickApplyFilters"/>
+        <waitForPageLoad stepKey="waitForPageToLoad"/>
+        <click selector="{{AdminProductModalSlideGridSection.productGridXRowYColumnButton('1', '1')}}"
+               stepKey="selectProduct"/>
+        <click selector="{{AdminSalesRuleWizardSection.AddSelectedProducts}}" stepKey="addSelectedProduct"/>
+        <waitForElementNotVisible selector="{{AdminSalesRuleWizardSection.AddSelectedProducts}}"
+                                  stepKey="waitForElementNotVisible"/>
+    </actionGroup>
+</actionGroups>

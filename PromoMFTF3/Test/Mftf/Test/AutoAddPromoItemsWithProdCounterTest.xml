@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithProdCounterTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Gifts Counter With Rule Auto Add Promo Items With Products On Storefront"/>
+            <description value="Check Gifts Counter With Rule Auto Add Promo Items With Products On Storefront"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="184499"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <createData entity="UpdateProductStockToFive" stepKey="updateProduct">
+                <requiredEntity createDataKey="createSecondProduct"/>
+            </createData>
+            <createData entity="SimpleProductByOvernightDuffle" stepKey="createThirdProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="setMessagePromoConfig">
+                <argument name="configurationMessages" value="configPromoMessagesCounterRemaining"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsWithProducts"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$, $$createThirdProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="setMessagePromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsWithProducts.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAutoOpenPopUpActionGroup" stepKey="assertAutoPopupOnCart"/>
+        <seeNumberOfElements selector="{{StorefrontCartSection.PopUpProdItem}}" userInput="{{number.two}}"
+                             stepKey="assertItemsQty"/>
+        <actionGroup ref="StorefrontAssertTotalFreeItemsInPopupActionGroup" stepKey="assertTotalFreeItems"/>
+        <actionGroup ref="StorefrontAssertFreeItemInPopupActionGroup" stepKey="assertFirstFreeItem">
+            <argument name="prodSku" value="$$createSecondProduct.sku$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeItemInPopupActionGroup" stepKey="assertSecondFreeItem">
+            <argument name="prodItemsLeft" value="number.ten"/>
+            <argument name="prodSku" value="$$createThirdProduct.sku$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSelectPopUpFreeItemActionGroup" stepKey="selectFreeGift">
+            <argument name="productSku" value="$$createSecondProduct.sku$$"/>
+        </actionGroup>
+        <seeElement selector="{{StorefrontCartSection.PopUpProdItemSelected($$createSecondProduct.sku$$)}}"
+                    stepKey="assertFreeItemSelected"/>
+        <actionGroup ref="StorefrontAssertTotalFreeItemsInPopupActionGroup" stepKey="assertTotalFreeItemsSecondTime">
+            <argument name="itemsLeft" value="number.nine"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeItemInPopupActionGroup" stepKey="assertFirstFreeItemSecondTime">
+            <argument name="prodItemsLeft" value="number.four"/>
+            <argument name="prodSku" value="$$createSecondProduct.sku$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeItemInPopupActionGroup" stepKey="assertSecondFreeItemSecondTime">
+            <argument name="prodItemsLeft" value="number.nine"/>
+            <argument name="prodSku" value="$$createThirdProduct.sku$$"/>
+        </actionGroup>
+    </test>
+</tests>

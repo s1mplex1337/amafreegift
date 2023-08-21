@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsForEveryXSpentWithBundleProductTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Auto Add Promo Items For Every X Spent with Bundle Product"/>
+            <description value="Check Auto Add Promo Items For Every X Spent with Bundle Product"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="110009"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoFreeGifts"/>
+        </annotations>
+
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByBagImpulseDuffle" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!--Create simple product 1-->
+            <createData entity="ApiProductWithDescription" stepKey="createSimpleProduct">
+                <field key="price">50.00</field>
+            </createData>
+            <!--Create simple product 2-->
+            <createData entity="ApiProductWithDescription" stepKey="createSimpleProductTwo">
+                <field key="price">50.00</field>
+            </createData>
+            <!--Create bundle product with checkbox bundle option-->
+            <createData entity="ApiBundleProduct" stepKey="createBundleProduct"/>
+            <createData entity="CheckboxOption" stepKey="checkboxBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <!--Link simple product 1 to bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="checkboxBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct"/>
+                <field key="is_default">1</field>
+            </createData>
+            <!--Link simple product 2 to bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="checkboxBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProductTwo"/>
+            </createData>
+            <!--Add drop-down bundle option-->
+            <createData entity="DropDownBundleOption" stepKey="dropDownBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <!--Link simple product 1 to drop-down bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink3">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="dropDownBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct"/>
+                <field key="is_default">1</field>
+            </createData>
+            <!--Link simple product 2 to drop-down bundle option with default quantity 2-->
+            <createData entity="ApiBundleLink" stepKey="createBundleLink4">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="dropDownBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProductTwo"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRuleFirst">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForEveryXSpent"/>
+                <argument name="promoItems" value="$$createFirstProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProductOne"/>
+            <deleteData createDataKey="createSimpleProductTwo" stepKey="deleteSimpleProductTwo"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForEveryXSpent.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Add Bundle Product to Cart and Assert Gift on Cart-->
+        <actionGroup ref="StorefrontOpenProductPageActionGroup" stepKey="openFirstProductPage">
+            <argument name="productUrl" value="$$createBundleProduct.custom_attributes[url_key]$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddBundleProductFromProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="productName" value="$$createBundleProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotAddedFreeGift">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <!-- Click Update Product, Add Second Option and Update Cart-->
+        <click selector="{{StorefrontCartSection.UpdateProductButtonByName($$createBundleProduct.name$$)}}"
+               stepKey="updateProductFromCart"/>
+        <click selector="{{StorefrontBundledSection.customizableBundleItemOption2}}" stepKey="checkSecondOption"/>
+        <click selector="{{StorefrontBundledSection.updateCart}}" stepKey="addFirstItemToCart"/>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedFreeGiftToCartSecond">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftPerDiscountWithCartPriceRuleHigherPriorityTest"
+          extends="AddFreeGiftWithCartPriceRuleLowerPriorityTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Product As A Free Gift With Percent Discount With Higher Priority Default Cart Price Rule"/>
+            <description value="Add Product As A Free Gift With Percent Discount With Higher Priority Default Cart Price Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="107987"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" after="createFirstProduct"
+                        stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRuleFirst">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsWithProduct"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminChangePriorityPromoCartRuleActionGroup" after="createPromoCartRuleFirst"
+                         stepKey="changePriorityDefaultRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsWithProduct.name"/>
+                <argument name="priority" value="ruleAutoAddPromoItemsWithProduct.priority"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" stepKey="addDiscountSettingInRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsWithProduct.name"/>
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsWithProduct"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsWithProduct.name}}"/>
+            </actionGroup>
+        </after>
+
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createSecondProduct.name$$)}}"
+             userInput="$$createSecondProduct.price$$" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.ninetyThreePrice}}"/>
+            <argument name="total" value="{{promoPrices.sixtyEightyPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.thirtyTwoTwentyPrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="FREE -  $$createSecondProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="$$createSecondProduct.price$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.thirtyTwoTwentyPrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.ninetyThreePrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderCouponCodeWithConditions.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.seventyEightyPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.ninetyThreePrice"/>
+            <argument name="grandTotal" value="promoPrices.seventyEightyPrice"/>
+        </actionGroup>
+    </test>
+</tests>

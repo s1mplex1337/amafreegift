@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddTheSameProdReportsTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Reports With Rule Auto Add The Same Product"/>
+            <description value="Check Reports With Rule Auto Add The Same Product"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="197678"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createStoreView">
+                <argument name="customStore" value="staticStore"/>
+            </actionGroup>
+            <actionGroup ref="AdminOpenCartPriceRulePageActionGroup" stepKey="openCartPriceRulePage"/>
+            <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" stepKey="disableCartRulesIfExist">
+                <argument name="action" value="mainMassActions.disable"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig"/>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="AdminDeleteStoreViewActionGroup" stepKey="deleteCustomStoreView">
+                <argument name="customStore" value="staticStore"/>
+            </actionGroup>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontSwitchStoreViewOnHomePageActionGroup" stepKey="switchToCustomStoreView">
+            <argument name="storeView" value="staticStore"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertAddedGiftProduct">
+            <argument name="product" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckoutFillShippingAddressAsGuestActionGroup" stepKey="fillShipping">
+            <argument name="customer" value="customerAddressArizona"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderBillingAsShippingGuestActionGroup" stepKey="createOrder"/>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addSecondProductToCart">
+            <argument name="valueQty" value="_enterQty2"/>
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckoutFillShippingAddressAsGuestActionGroup" stepKey="fillShippingSecondTime">
+            <argument name="customer" value="customerAddressArizona"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderBillingAsShippingGuestActionGroup" stepKey="createSecondOrder"/>
+        <amOnPage url="{{AdminRefreshStatisticsPage.url}}" stepKey="openRefreshStatisticsPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" stepKey="refreshStatisticsGrid">
+            <argument name="action" value="refreshStatisticsActions.refreshRecent"/>
+        </actionGroup>
+        <actionGroup ref="AdminRefreshFreeGiftReportsActionGroup" stepKey="refreshFreeGiftReports"/>
+        <actionGroup ref="AdminAssertFreeGiftReportsActionGroup" stepKey="assertReportsData">
+            <argument name="reports" value="theSameProductReport"/>
+        </actionGroup>
+    </test>
+</tests>

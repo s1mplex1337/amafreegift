@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="DisableInclTaxInSubtotalWithCatPricesExclTaxTest"
+          extends="EnableInclTaxInSubtotalWithCatPricesExclTaxTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items for Every X Spent with Disabled Include Tax in Subtotal and Catalog Prices Excluding Tax Settings"/>
+            <description value="Check Rule Auto Add Promo Items for Every X Spent with Disabled Include Tax in Subtotal and Catalog Prices Excluding Tax Settings"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201458"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig"/>
+        </before>
+        <after>
+            <remove keyForRemoval="defGeneralPromoConfig"/>
+        </after>
+
+        <actionGroup ref="StorefrontAssertNoFreeGiftProductOnCartActionGroup" stepKey="assertFreeGift">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithProductsAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Simple Product As A Free Gift To Admin Order With Auto Add Promo Items With Products Rule"/>
+            <description value="Add Simple Product As A Free Gift To Admin Order With Auto Add Promo Items With Products Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="178033"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrderBySku">
+            <argument name="productSKU" value="$$createFirstProduct.sku$$"/>
+            <argument name="productNumber" value="{{number.zero}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertAddedFreeGiftMessageActionGroup" stepKey="assertSuccessMsg">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup" stepKey="assertFreeGiftDiscount">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+            <argument name="discount" value="promoPrices.thirtyFourPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" stepKey="assertDiscount">
+            <argument name="discount" value="promoPrices.thirtyFourPrice"/>
+        </actionGroup>
+    </test>
+</tests>

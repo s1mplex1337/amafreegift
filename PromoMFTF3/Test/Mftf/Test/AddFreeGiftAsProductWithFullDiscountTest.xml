@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftAsProductWithFullDiscountTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Product as a Free Gift with 100% Discount"/>
+            <description value="Add Product as a Free Gift with 100% Discount"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="72420"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data and Configuration Options before Test -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProductByWatchClamber" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCartPriceRulePageActionGroup" stepKey="openCartPriceRulePage"/>
+            <actionGroup ref="AdminSelectAndSubmitActionsGridActionGroup" stepKey="disableCartRulesIfExist">
+                <argument name="action" value="mainMassActions.disable"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartConditions"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data and Return Default Configuration Options after Test -->
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartConditions.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="defaultMessagesPromoConfig"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCustomer">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <!--Add Product to Cart and Assert Product On Cart-->
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" stepKey="assertAddedSimpleProductToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createSecondProduct.name$$)}}"
+             userInput="$$createSecondProduct.price$$" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="total" value="{{promoPrices.fiftyFourPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.thirtyTwoPrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontClickProceedToCheckoutActionGroup" stepKey="goToCheckout"/>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="{{promoPrices.thirtyTwoPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderAsCustomerOnCheckoutShippingPageActionGroup"
+                     stepKey="fillShippingCheckoutPage"/>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.thirtyTwoPrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderSimpleLoginDiscount.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.fiftyNinePrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCreateOrderGrabMainNumberActionGroup" stepKey="createOrder"/>
+        <actionGroup ref="AdminOpenOrderOnIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="{$grabOrderNumberCreateOrder}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.eightySixPrice"/>
+            <argument name="grandTotal" value="promoPrices.fiftyNinePrice"/>
+        </actionGroup>
+    </test>
+</tests>

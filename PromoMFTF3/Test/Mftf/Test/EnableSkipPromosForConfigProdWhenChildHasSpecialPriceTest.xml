@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="EnableSkipPromosForConfigProdWhenChildHasSpecialPriceTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add The Same Product with Enabled Do not Offer Promos for Configurable Products when Child has Special Price Setting"/>
+            <description value="Check Rule Auto Add The Same Product with Enabled Do not Offer Promos for Configurable Products when Child has Special Price Setting"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201463"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminCreateConfigurableProductWithCategoryActionGroup" stepKey="createProduct"/>
+            <createData entity="specialProductPrice34" stepKey="specialPriceToFirstChildProd">
+                <requiredEntity createDataKey="createFirstChildProdCreateProduct"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="setLimitationsPromoConfig">
+                <argument name="configuration" value="enableSkipSpecialPriceConfigurable"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProductForOneQty"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createConfigProductCreateProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createFirstChildProdCreateProduct" stepKey="deleteFirstChildProduct"/>
+            <deleteData createDataKey="createSecondChildProdCreateProduct" stepKey="deleteSecondChildProduct"/>
+            <deleteData createDataKey="createConfigProdAttrCreateProduct" stepKey="deleteProductAttribute"/>
+            <deleteData createDataKey="createCategoryCreateProduct" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="defLimitationsPromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProductForOneQty.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addFirstProdToCart">
+            <argument name="product" value="$$createFirstChildProdCreateProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAdded">
+            <argument name="product" value="$$createFirstChildProdCreateProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addSecondProdToCart">
+            <argument name="product" value="$$createSecondChildProdCreateProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondChildProdCreateProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsSubtotalBeforeDiscountsTest" extends="AutoAddPromoItemsSubtotalAfterDiscountsTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Auto Add Free Items Based On Cart Amount Subtotal Before Discounts"/>
+            <description value="Auto Add Free Items Based On Cart Amount Subtotal Before Discounts"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201402"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configPromoMessagesProductWithZeroPrice"/>
+            </actionGroup>
+        </before>
+        <after>
+            <remove keyForRemoval="defaultGeneralPromoConfig"/>
+        </after>
+
+        <remove keyForRemoval="assertNoGiftProduct"/>
+        <remove keyForRemoval="addSecondProductToCart"/>
+    </test>
+</tests>

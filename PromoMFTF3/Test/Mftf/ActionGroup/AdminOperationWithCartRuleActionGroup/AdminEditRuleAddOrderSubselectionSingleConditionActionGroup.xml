@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminEditRuleAddOrderSubselectionSingleConditionActionGroup"
+                 extends="AdminEditRuleAddGlobalConditionsActionGroup">
+        <selectOption selector="{{AdminActionsCartPriceRuleSection.ConditionSelectOption}}"
+                      userInput="Orders Subselection" stepKey="selectConditionOption"/>
+        <waitForElementVisible selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionOperator}}"
+                               after="selectConditionOption" stepKey="waitForVisibleSelectConditionButton"/>
+        <click selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionOperator}}"
+               after="waitForVisibleSelectConditionButton" stepKey="clickConditionSelectButton"/>
+        <waitForElementVisible selector="{{AdminPromoCartRuleSection.OrdersSubselectionCondition}}"
+                               after="clickConditionSelectButton" stepKey="waitForVisibleSelectConditionOption"/>
+        <selectOption selector="{{AdminPromoCartRuleSection.OrdersSubselectionCondition}}"
+                      userInput="{{actionsConditionOptions.optionsText}}" after="waitForVisibleSelectConditionOption"
+                      stepKey="selectConditionOptionTwo"/>
+        <waitForElementVisible
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionOperatorIs}}"
+            stepKey="waitForVisibleConditionDefaultOperator"/>
+        <click selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionOperatorIs}}"
+               stepKey="clickForSelectOperator"/>
+        <waitForElementVisible
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionSelectOperator}}"
+            stepKey="waitForVisibleSelectConditionOperators"/>
+        <selectOption
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionSelectOperator}}"
+            userInput="{{actionsConditionOptionsParamIs.optionsValue}}" stepKey="selectOperator"/>
+        <waitForElementVisible
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionValueNoActive}}"
+            stepKey="waitForVisibleConditionValueText"/>
+        <click
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionValueNoActive}}"
+            stepKey="clickForAddConditionValue"/>
+        <conditionalClick
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionValueNoActive}}"
+            dependentSelector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionInput}}" visible="false"
+            stepKey="clickForAddConditionIfNoOutSelect"/>
+        <waitForElementVisible
+            selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionInput}}"
+            stepKey="waitForVisibleConditionValue"/>
+        <fillField selector="{{AdminPromoCartRuleSection.OrdersSubselectionConditionInput}}"
+                   userInput="{{conditionsData}}" stepKey="addConditionValue"/>
+    </actionGroup>
+</actionGroups>

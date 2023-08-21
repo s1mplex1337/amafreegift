@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftAsProductWithPartialDiscountPriceInclTaxTest"
+          extends="AddFreeGiftAsProductWithFullDiscountTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Bundle Product as a Free Gift with Partial Discount"/>
+            <description value="Add Bundle Product as a Free Gift with Partial Discount"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="107990"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <createData entity="CommonCustomerArizona" stepKey="createCustomer"/>
+            <createData entity="taxRateForArizona" stepKey="createTaxRate"/>
+            <actionGroup ref="AdminCreateTaxRuleActionGroup" stepKey="createTaxRule">
+                <argument name="taxRule" value="taxRuleWithArizona"/>
+                <argument name="taxRate" value="$$createTaxRate$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigurationSettingsForCalculationTaxActionGroup" stepKey="configurationSettingTax">
+                <argument name="calculationTax" value="taxCalculationCatalogPricesAndApplyTaxAfterDiscount"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" stepKey="addDiscountSettingInRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartConditions.name"/>
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminDeleteTaxRule" before="amOnLogoutPage" stepKey="deleteTaxRule">
+                <argument name="taxRuleCode" value="{{taxRuleWithArizona.code}}"/>
+            </actionGroup>
+            <deleteData createDataKey="createTaxRate" stepKey="deleteTaxRate"/>
+            <actionGroup ref="AdminDefaultConfigurationSettingCalculationTaxActionGroup"
+                         stepKey="returnDefaultTaxSetting"/>
+        </after>
+
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createSecondProduct.name$$)}}"
+             userInput="{{promoPrices.thirtyTwoPrice}}" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="total" value="{{promoPrices.seventySevenPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.seventeenSixtyPrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="{{promoPrices.thirtyTwoPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.seventeenSixtyPrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderCouponCodeWithConditions.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.eightySevenPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.eightySixPrice"/>
+            <argument name="grandTotal" value="promoPrices.eightySevenPrice"/>
+        </actionGroup>
+    </test>
+</tests>

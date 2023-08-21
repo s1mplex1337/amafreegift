@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="EnableSkipPromosForProdWithSpecialPriceTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items for Every X Spent with Enabled Do Not Offer Promos for Products with Special Price Setting"/>
+            <description value="Check Rule Auto Add Promo Items for Every X Spent with Enabled Do Not Offer Promos for Products with Special Price Setting"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="181679"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="specialProductPrice2" stepKey="specialPriceToFirstProduct">
+                <requiredEntity createDataKey="createFirstProduct"/>
+            </createData>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <createData entity="SimpleProductByOvernightDuffle" stepKey="createThirdProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="setGeneralPromoConfig"/>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="setLimitationsPromoConfig">
+                <argument name="configuration" value="enableSkipSpecialPrice"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForEveryXSpentLimitations"/>
+                <argument name="promoItems" value="$createSecondProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="defLimitationsPromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deletePromoCartRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForEveryXSpentLimitations.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addFirstProdToCart">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddCreatedProductToCartActionGroup" stepKey="addSecondProdToCart">
+            <argument name="product" value="$$createThirdProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontChangeQtyProductInCartActionGroup" stepKey="changeSecondProdQty">
+            <argument name="product" value="$$createThirdProduct$$" />
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" stepKey="assertSuccessMsg">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertFreeGiftProductOnCartActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+    </test>
+</tests>

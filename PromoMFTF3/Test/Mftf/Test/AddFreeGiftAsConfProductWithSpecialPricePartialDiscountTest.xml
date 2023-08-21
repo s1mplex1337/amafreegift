@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddFreeGiftAsConfProductWithSpecialPricePartialDiscountTest"
+          extends="AddFreeGiftAsProductWithFullDiscountTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Configurable Product's Child with Special Price as a Free Gift with 50% Discount"/>
+            <description value="Add Configurable Product's Child with Special Price as a Free Gift with 50% Discount"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="85237"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <!-- Create Data and Configuration Options before Test -->
+            <remove keyForRemoval="createSecondProduct"/>
+            <actionGroup ref="AdminCreateConfigurableProductWithCategoryActionGroup" stepKey="createConfigurableProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration">
+                <argument name="configurationMessages" value="configPromoMessagesAutoOpenPopUp"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup"
+                         after="createConfigurableProduct" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartConditions"/>
+                <argument name="promoItems" value="$$createConfigProductCreateConfigurableProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" stepKey="addDiscountSettingInRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartConditions.name"/>
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddSpecialPriceProductActionGroup" stepKey="addSpecialPriceForProduct">
+                <argument name="product" value="$$createSecondChildProdCreateConfigurableProduct$$"/>
+                <argument name="specialPrice" value="promoPrices.thirtyTwoPrice"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Created Data and Return Default Configuration Options after Test -->
+            <remove keyForRemoval="deleteSecondProduct"/>
+            <deleteData createDataKey="createConfigProductCreateConfigurableProduct" stepKey="deleteConfigProduct"/>
+            <deleteData createDataKey="createFirstChildProdCreateConfigurableProduct" stepKey="deleteFirstSimpleChildProduct"/>
+            <deleteData createDataKey="createSecondChildProdCreateConfigurableProduct" stepKey="deleteSecondSimpleChildProduct"/>
+            <deleteData createDataKey="createConfigProdAttrCreateConfigurableProduct" stepKey="deleteConfigProductAttribute"/>
+            <deleteData createDataKey="createCategoryCreateConfigurableProduct" stepKey="deleteCategoryConfigurable"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartConditions.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="StorefrontAssertAutoOpenPopUpActionGroup" after="addProductToCart"
+                     stepKey="assertAutoPopupOnCart"/>
+        <actionGroup ref="StorefrontAddConfigurableGiftOneByOnePopUpActionGroup" after="assertAutoPopupOnCart"
+                     stepKey="addConfigurableGift">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct$$"/>
+            <argument name="configOption" value="configurableProductOptions.optionTwo"/>
+        </actionGroup>
+        <see selector="{{StorefrontCartSection.FreeProductPriceByName($$createConfigProductCreateConfigurableProduct.name$$)}}"
+             userInput="{{promoPrices.thirtyTwoPrice}}" stepKey="assertGiftProductPrice"/>
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsActionGroup" stepKey="assertCartSummary">
+            <argument name="subtotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="total" value="{{promoPrices.seventyPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckCartDiscountAmountActionGroup" stepKey="checkDiscountAmount">
+            <argument name="discountAmount" value="promoPrices.sixteenPrice"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductWithOpeningOrderSummaryActionGroup"
+                     stepKey="assertGiftProductInOrderSummary">
+            <argument name="productName" value="$$createConfigProductCreateConfigurableProduct.name$$"/>
+            <argument name="qty" value="{{_enterQty1.qty}}"/>
+            <argument name="price" value="{{promoPrices.thirtyTwoPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckDiscountAmountOnCheckoutActionGroup" stepKey="assertDiscountOnCheckoutTotals">
+            <argument name="discountAmount" value="promoPrices.sixteenPrice"/>
+        </actionGroup>
+        <actionGroup ref="VerifyCheckoutPaymentOrderSummaryActionGroup" stepKey="assertCheckoutSummary">
+            <argument name="orderSummarySubTotal" value="{{promoPrices.eightySixPrice}}"/>
+            <argument name="orderSummaryShippingTotal" value="{{amDefOrderCouponCodeWithConditions.shippingPrice}}"/>
+            <argument name="orderSummaryTotal" value="{{promoPrices.eightyPrice}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckTotalsInOrderActionGroup" stepKey="checkTotals">
+            <argument name="subTotal" value="promoPrices.eightySixPrice"/>
+            <argument name="grandTotal" value="promoPrices.eightyPrice"/>
+        </actionGroup>
+    </test>
+</tests>

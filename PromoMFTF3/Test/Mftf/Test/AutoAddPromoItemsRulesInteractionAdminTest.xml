@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsRulesInteractionAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With Products And Rule Auto Add Promo Items For The Whole Cart Working Together"/>
+            <description value="Check Rule Auto Add Promo Items With Products And Rule Auto Add Promo Items For The Whole Cart Working Together"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="182671"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createFirstProduct"/>
+            <createData entity="SimpleProductByJoustDuffleBag" stepKey="createSecondProduct"/>
+            <createData entity="SimpleProductByDrivenBackpack" stepKey="createThirdProduct"/>
+            <createData entity="SimpleProductByFitnessSpriteFoamRoller" stepKey="createFourthProduct"/>
+            <createData entity="SimpleProductByFitnessHarmonyLumaflex" stepKey="createFifthProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createFirstPromoCartRule">
+                <argument name="promoItems" value="$$createSecondProduct.sku$$, $$createThirdProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" stepKey="createSecondPromoCartRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartFixedPrice"/>
+                <argument name="promoItems" value="$$createFourthProduct.sku$$, $$createFifthProduct.sku$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <deleteData createDataKey="createFourthProduct" stepKey="deleteFourthProduct"/>
+            <deleteData createDataKey="createFifthProduct" stepKey="deleteFifthProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteFirstCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteSecondCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartFixedPrice.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrderBySku">
+            <argument name="productSKU" value="$$createFirstProduct.sku$$"/>
+            <argument name="productNumber" value="{{number.zero}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFirstFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoSecondFreeGiftAdded">
+            <argument name="product" value="$$createThirdProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoThirdFreeGiftAdded">
+            <argument name="product" value="$$createFourthProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFourthFreeGiftAdded">
+            <argument name="product" value="$$createFifthProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminOpenFreeGiftAddingGridActionGroup" stepKey="openFreeGiftProdGrid">
+            <argument name="totalQty" value="number.four"/>
+        </actionGroup>
+        <checkOption selector="{{AdminOrderInfoSection.FreeGiftSelect(number.one)}}" stepKey="selectFreeGift"/>
+        <checkOption selector="{{AdminOrderInfoSection.FreeGiftSelect(number.three)}}" stepKey="selectSecondFreeGift"/>
+        <actionGroup ref="AdminClickAddFreeGiftBtnActionGroup" stepKey="addFreeGift"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFirstFreeGiftAdded">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertThirdFreeGiftAdded">
+            <argument name="product" value="$$createFourthProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoSecondFreeGiftAddedSecondTime">
+            <argument name="product" value="$$createThirdProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftProductAddedActionGroup" stepKey="assertNoFourthFreeGiftAddedSecondTime">
+            <argument name="product" value="$$createFifthProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftsAreAvailableBtnActionGroup" stepKey="assertFreeGiftsAreAvailableBtn">
+            <argument name="availableQty" value="number.two"/>
+            <argument name="totalQty" value="number.four"/>
+        </actionGroup>
+    </test>
+</tests>

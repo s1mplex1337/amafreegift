@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminConfigPromoLimitationsActionGroup">
+        <arguments>
+            <argument name="configuration" defaultValue="defLimitations"/>
+        </arguments>
+        <magentoCLI command="config:set {{configCLIData.skip_special_price}} {{configuration.skipSpecialPrice}}"
+                    stepKey="setSkipForProdWithSpecialPrice"/>
+        <magentoCLI command="config:set {{configCLIData.skip_special_price_configurable}} {{configuration.skipSpecialPriceConfigurable}}"
+                    stepKey="setSkipForConfigProdWhenChildHasSpecialPrice"/>
+    </actionGroup>
+</actionGroups>

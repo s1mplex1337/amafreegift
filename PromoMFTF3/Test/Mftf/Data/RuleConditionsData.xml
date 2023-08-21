@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+
+    <entity name="_firstname" type="actionsConditionsOptions">
+        <data key="optionsText">First Name</data>
+        <data key="optionsValue">firstname</data>
+    </entity>
+
+    <entity name="_category" type="actionsConditionsOptions">
+        <data key="optionsText">Category</data>
+        <data key="optionsValue">category_ids</data>
+    </entity>
+
+    <entity name="_qtyInCart" type="actionsConditionsOptions">
+        <data key="optionsText">Quantity in cart</data>
+        <data key="optionsValue">quote_item_qty</data>
+    </entity>
+
+    <entity name="_qtyInStock" type="actionsConditionsOptions">
+        <data key="optionsText">Quantity In Stock</data>
+        <data key="optionsValue">quantity_in_stock</data>
+    </entity>
+
+    <entity name="_weight" type="actionsConditionsOptions">
+        <data key="optionsText">Weight</data>
+        <data key="optionsValue">weight</data>
+    </entity>
+
+    <entity name="_currency" type="actionsConditionsOptions">
+        <data key="optionsText">Storeview currency</data>
+        <data key="optionsValue">currency</data>
+    </entity>
+
+    <entity name="euroName" type="currencies">
+        <data key="currencyName">Euro</data>
+    </entity>
+
+    <entity name="_orderNumber" type="actionsConditionsOptions">
+        <data key="optionsText">Number of Completed Orders</data>
+        <data key="optionsValue">order_num</data>
+    </entity>
+
+    <entity name="_customOptionID" type="actionsConditionsOptions">
+        <data key="optionsText">Product Custom Options IDs</data>
+        <data key="optionsValue">Amasty\Conditions\Model\Rule\Condition\CustomOptions</data>
+    </entity>
+
+</entities>

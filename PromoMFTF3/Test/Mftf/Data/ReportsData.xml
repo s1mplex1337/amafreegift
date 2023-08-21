@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+
+    <entity name="todayReport" type="reports">
+        <data key="storeView">Second Store View</data>
+        <data key="customerGroup">All Customer Groups</data>
+        <data key="dateRange">Today</data>
+    </entity>
+
+    <entity name="theSameProductReport" type="reports">
+        <data key="totalSales">$142.00</data>
+        <data key="orders">2</data>
+        <data key="averageCartTotal">$71.00</data>
+        <data key="promoItemsPerOrder">1.50</data>
+    </entity>
+
+</entities>

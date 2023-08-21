@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsWithQtyInCartConditionTest" extends="AutoAddPromoItemsWithCategoryConditionTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items With Conditions"/>
+            <description value="Check Rule Auto Add Promo Items With Conditions"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="109637"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoConfiguration"/>
+        </annotations>
+
+        <before>
+            <remove keyForRemoval="createSecondCategory"/>
+            <createData entity="SimpleProductByStriveShoulderPack" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+                <argument name="promoItems" value="$$createSecondProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditRuleAddActionsConditionsActionGroup" stepKey="addConditionsForCartRule">
+                <argument name="actionsConditionOptions" value="_qtyInCart"/>
+                <argument name="ruleName" value="defaultPromoCartRule.name"/>
+                <argument name="conditionsData" value="number.two"/>
+            </actionGroup>
+        </before>
+        <after>
+            <remove keyForRemoval="deleteSecondCategory"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <remove keyForRemoval="addSecondProductToCart"/>
+        <remove keyForRemoval="seeSuccessMessageForGiftProduct"/>
+        <remove keyForRemoval="assertNotAddedFirstProduct"/>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" stepKey="assertNotAddedFreeGiftToCart">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontChangeQtyProductInCartActionGroup" after="assertNotAddedFreeGiftToCart"
+                     stepKey="changeQtyProductFirst">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" after="assertNotAddedFreeGiftToCart"
+                     stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductOnCartActionGroup" after="seeSuccessMessageForGiftProduct"
+                     stepKey="assertAddedGiftProduct">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="productQty" value="_enterQty2"/>
+        </actionGroup>
+    </test>
+</tests>

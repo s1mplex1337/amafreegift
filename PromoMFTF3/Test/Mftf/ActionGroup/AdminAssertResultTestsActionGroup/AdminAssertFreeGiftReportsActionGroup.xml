@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminAssertFreeGiftReportsActionGroup">
+        <arguments>
+            <argument name="reports"/>
+        </arguments>
+        <seeElement selector="{{AdminFreeGiftReportsSection.TotalSales(reports.totalSales)}}"
+                    stepKey="assertTotalSales"/>
+        <seeElement selector="{{AdminFreeGiftReportsSection.Orders(reports.orders)}}" stepKey="assertOrders"/>
+        <seeElement selector="{{AdminFreeGiftReportsSection.AverageCartTotal(reports.averageCartTotal)}}"
+                    stepKey="assertAverageCartTotal"/>
+        <seeElement selector="{{AdminFreeGiftReportsSection.PromoItemsPerOrder(reports.promoItemsPerOrder)}}"
+                    stepKey="assertPromoItemsPerOrder"/>
+    </actionGroup>
+</actionGroups>

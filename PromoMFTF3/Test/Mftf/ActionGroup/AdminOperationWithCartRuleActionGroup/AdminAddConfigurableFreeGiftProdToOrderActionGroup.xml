@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminAddConfigurableFreeGiftProdToOrderActionGroup">
+        <arguments>
+            <argument name="option" defaultValue="Option1Store0.label"/>
+        </arguments>
+        <click selector="{{AdminOrderInfoSection.ConfigureBtn}}" stepKey="clickConfigure"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <selectOption selector="{{AdminOrderInfoSection.AttrSelect}}" userInput="{{option}}" stepKey="selectOption"/>
+        <click selector="{{AdminOrderInfoSection.OkBtn}}" stepKey="confirmSelect"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoad"/>
+        <click selector="{{AdminOrderInfoSection.AddFreeGiftBtn}}" stepKey="addFreeGift"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskSecondTime"/>
+    </actionGroup>
+</actionGroups>

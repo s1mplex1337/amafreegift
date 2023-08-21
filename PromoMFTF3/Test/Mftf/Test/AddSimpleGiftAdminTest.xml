@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddSimpleGiftAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Simple Product As A Free Gift To Admin Order With Auto Add Promo Items With Products Rule"/>
+            <description value="Add Simple Product As A Free Gift To Admin Order With Auto Add Promo Items With Products Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="181916"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProductByFusionBackpack" stepKey="createProduct"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralNotAddAutoGifts"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreatePromoCartRuleTheSameActionGroup" stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddTheSameProdManual"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddTheSameProdManual.name}}"/>
+            </actionGroup>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="openNewOrderPage">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrderBySku">
+            <argument name="productSKU" value="$$createProduct.sku$$"/>
+            <argument name="productNumber" value="{{number.zero}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminOpenFreeGiftAddingGridActionGroup" stepKey="openFreeGiftProdGrid">
+            <argument name="totalQty" value="number.two"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertItemsQtyOnFreeGiftGridActionGroup" stepKey="assertFreeGiftQty">
+            <argument name="itemsQty" value="number.two"/>
+        </actionGroup>
+        <click selector="{{AdminGridsSection.dataRows}}" stepKey="clickRow"/>
+        <actionGroup ref="AdminAssertItemsQtyOnFreeGiftGridActionGroup" stepKey="assertFreeGiftQtySecondTime"/>
+        <fillField selector="{{AdminOrderInfoSection.TableCell(number.one, gridColumn.quantity)}}"
+                   userInput="{{number.two}}" stepKey="fillItemQty"/>
+        <actionGroup ref="AdminAssertItemsQtyOnFreeGiftGridActionGroup" stepKey="assertFreeGiftQtyThirdTime">
+            <argument name="itemsQty" value="number.zero"/>
+        </actionGroup>
+        <actionGroup ref="AdminClickAddFreeGiftBtnActionGroup" stepKey="addFreeGift"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createProduct.name$$"/>
+        </actionGroup>
+        <seeElement selector="{{AdminOrderInfoSection.ProdInOrderQty($$createProduct.name$$, number.two)}}"
+                    stepKey="assertItemsOrderedGiftQty"/>
+    </test>
+</tests>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AutoAddPromoItemsForTheWholeCartAdminTest" extends="AutoAddPromoItemsWithProductsAdminTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Bundle Product As A Free Gift To Admin Order With Auto Add Promo Items For The Whole Cart Rule"/>
+            <description value="Add Bundle Product As A Free Gift To Admin Order With Auto Add Promo Items For The Whole Cart Rule"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="178034"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <skip>
+                <issueId value="PDT-10057"/>
+            </skip>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration">
+                <argument name="configurationGeneral" value="configPromoGeneralAddAutoAllGifts"/>
+            </actionGroup>
+            <createData entity="ApiBundleProduct" stepKey="createBundleProduct"/>
+            <createData entity="CheckboxOption" stepKey="checkboxBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <createData entity="ApiBundleLink" stepKey="createBundleLink">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="checkboxBundleOption"/>
+                <requiredEntity createDataKey="createSecondProduct"/>
+                <field key="is_default">1</field>
+            </createData>
+            <actionGroup ref="AdminCreatePromoCartPriceRuleWholeCartActionGroup" after="createBundleLink"
+                         stepKey="createPromoCartPriceRule">
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartConditions"/>
+                <argument name="promoItems" value="$$createBundleProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddDiscountToPromoCartRuleActionGroup" after="createPromoCartPriceRule"
+                         stepKey="addDiscountSettingInRule">
+                <argument name="cartRuleName" value="ruleAutoAddPromoItemsForTheWholeCartConditions.name"/>
+                <argument name="promoCartRule" value="ruleAutoAddPromoItemsForTheWholeCartConditions"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{ruleAutoAddPromoItemsForTheWholeCartConditions.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="defaultGeneralPromoConfig"/>
+        </after>
+
+        <actionGroup ref="AdminAssertAddedFreeGiftMessageActionGroup" stepKey="assertSuccessMsg">
+            <argument name="product" value="$$createBundleProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedActionGroup" stepKey="assertFreeGiftAdded">
+            <argument name="product" value="$$createBundleProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNoFreeGiftsAreAvailableBtnActionGroup" stepKey="assertPromoBtn"/>
+        <actionGroup ref="AdminSelectFixedShippingMethodActionGroup" stepKey="selectShipping"/>
+        <actionGroup ref="AdminSubmitOrderActionGroup" stepKey="submitOrder"/>
+        <actionGroup ref="AdminAssertFreeGiftProdAddedWithDiscountActionGroup" stepKey="assertFreeGiftDiscount">
+            <argument name="product" value="$$createSecondProduct.name$$"/>
+            <argument name="discount" value="promoPrices.seventeenPrice"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertOrderDiscountActionGroup" after="assertFreeGiftDiscount" stepKey="assertDiscount">
+            <argument name="discount" value="promoPrices.seventeenPrice"/>
+        </actionGroup>
+    </test>
+</tests>

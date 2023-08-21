@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <actionGroup name="AdminEditRuleAddProductAttributeCustomOptionIdConditionActionGroup"
+                 extends="AdminEditRuleAddGlobalConditionsActionGroup">
+        <arguments>
+            <argument name="actionsConditionOptions" defaultValue="_customOptionID"/>
+            <argument name="actionsConditionOptionsParamIs" defaultValue="_is"/>
+            <argument name="conditionsData"/>
+            <argument name="ruleName"/>
+        </arguments>
+
+        <selectOption selector="{{AdminActionsCartPriceRuleSection.ConditionSelectOption}}"
+                      userInput="Product attribute combination" after="waitForVisibleSelectConditionOption"
+                      stepKey="selectConditionOption"/>
+        <waitForAjaxLoad after="selectConditionOption" stepKey="waitForAjaxLoaded"/>
+        <click selector="{{AdminActionsCartPriceRuleSection.ButtonGlobalConditions}}" after="waitForAjaxLoaded"
+               stepKey="clickButtonConditionTwo"/>
+        <waitForElementVisible selector="{{AdminPromoCartRuleSection.SubConditionSelectOption}}"
+                               after="clickButtonConditionTwo" stepKey="waitForVisibleSelectConditionOptionTwo"/>
+        <selectOption selector="{{AdminPromoCartRuleSection.SubConditionSelectOption}}"
+                      userInput="{{actionsConditionOptions.optionsText}}" after="waitForVisibleSelectConditionOptionTwo"
+                      stepKey="selectConditionOptionTwo"/>
+        <click selector="{{AdminPromoCartRuleSection.OpenChooserButton}}" after="waitForVisibleConditionValue"
+               stepKey="clickChooserButton"/>
+        <waitForElementVisible selector="{{AdminPromoCartRuleSection.CustomOptionsGrid}}" after="clickChooserButton"
+                               stepKey="waitForGridLoad"/>
+        <grabTextFrom selector="{{AdminPromoCartRuleSection.CustomOptionIdBySku(conditionsData)}}"
+                      after="waitForGridLoad" stepKey="grabOptionId"/>
+        <fillField selector="{{AdminActionsCartPriceRuleSection.ConditionInput(actionsConditionOptions.optionsValue)}}"
+                   userInput="{$grabOptionId}" stepKey="addConditionValue"/>
+    </actionGroup>
+</actionGroups>
+
+

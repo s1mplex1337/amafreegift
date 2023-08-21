@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="AddConfigurableProductOnCheckoutWithCouponTest"
+          extends="AddConfigurableProductOnCartWithAutoOpenedPopUpTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Add Configurable Free Gift On Checkout with Coupon"/>
+            <description value="Add Configurable Free Gift On Checkout with Coupon"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="110010"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+            <group value="PromoFreeGifts"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoGeneralActionGroup" stepKey="settingGeneralPromoConfiguration"/>
+            <actionGroup ref="AdminConfigPromoMessagesActionGroup" stepKey="settingMessagePromoConfiguration"/>
+            <actionGroup ref="AdminCreatePromoCartRuleWithPromoItemsActionGroup" stepKey="createPromoCartRule">
+                <argument name="promoCartRule" value="defaultPromoCartRule"/>
+                <argument name="promoItems" value="$$createConfigProductCreateConfigurableProduct.sku$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEditCartPriceRuleAddCouponCodeActionGroup" stepKey="editCartRule">
+                <argument name="cartRuleName" value="defaultPromoCartRule.name"/>
+                <argument name="couponCode" value="defaultPromoCartRule.code"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCreatedCartPriceRule">
+                <argument name="ruleName" value="{{defaultPromoCartRule.name}}"/>
+            </actionGroup>
+        </after>
+
+        <remove keyForRemoval="assertAutoPopupOnCart"/>
+        <actionGroup ref="StorefrontAssertNotProductOnCartActionGroup" after="addProductToCart" stepKey="assertNotAddedFreeGift">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCheckoutFillShippingAddressAsGuestActionGroup" stepKey="fillShippingCheckoutPage"/>
+        <actionGroup ref="StorefrontApplyCouponCodeOnTheCheckoutActionGroup" after="fillShippingCheckoutPage"
+                     stepKey="addCoupon">
+            <argument name="coupon" value="defaultPromoCartRule"/>
+        </actionGroup>
+        <!-- Add Free Gifts On Cart and Assert them on Cart -->
+        <actionGroup ref="StorefrontOpenFreeGiftPopUpActionGroup" after="addCoupon" stepKey="openPopUpOnCheckout"/>
+        <actionGroup ref="StorefrontAddConfigurableGiftOneByOnePopUpActionGroup" after="openPopUpOnCheckout"
+                     stepKey="addConfigurableGift">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct$$"/>
+            <argument name="configOption" value="configurableProductOptions.optionOne"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertAddedFreeGiftMessageActionGroup" after="addConfigurableGift"
+                     stepKey="seeSuccessMessageForGiftProduct">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct.name$$"/>
+        </actionGroup>
+        <seeInCurrentUrl url="{{StorefrontCheckoutShippingPage.url}}" after="seeSuccessMessageForGiftProduct"
+                         stepKey="checkRedirectAfterAddFreeGift"/>
+        <actionGroup ref="StorefrontAssertConfigurableProductOnCartActionGroup" after="checkRedirectAfterAddFreeGift"
+                     stepKey="assertAddedFreeGift">
+            <argument name="product" value="$$createConfigProductCreateConfigurableProduct$$"/>
+            <argument name="productChild" value="$$createFirstChildProdCreateConfigurableProduct$$"/>
+        </actionGroup>
+    </test>
+</tests>

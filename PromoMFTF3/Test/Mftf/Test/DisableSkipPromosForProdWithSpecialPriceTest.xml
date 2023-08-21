@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Free Gift MFTF 3 for Magento 2 (System)
+ */-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="DisableSkipPromosForProdWithSpecialPriceTest" extends="EnableSkipPromosForProdWithSpecialPriceTest">
+        <annotations>
+            <features value="Rule Creation"/>
+            <stories value="Create a Rule via the Admin"/>
+            <title value="Check Rule Auto Add Promo Items for Every X Spent with Disabled Do Not Offer Promos for Products with Special Price Setting"/>
+            <description value="Check Rule Auto Add Promo Items for Every X Spent with Disabled Do Not Offer Promos for Products with Special Price Setting"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="201471"/>
+            <group value="CPTS_PromoLite"/>
+            <group value="CPTS_PromoPro"/>
+            <group value="Promo"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminConfigPromoLimitationsActionGroup" stepKey="setLimitationsPromoConfig"/>
+        </before>
+        <after>
+            <remove keyForRemoval="defLimitationsPromoConfig"/>
+        </after>
+
+        <remove keyForRemoval="assertNoFreeGiftAdded"/>
+        <remove keyForRemoval="changeSecondProdQty"/>
+    </test>
+</tests>
